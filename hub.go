@@ -6,30 +6,30 @@ package sock
 
 import ()
 
-// hub maintains the set of active clients and broadcasts messages to the
-// clients.
+// hub maintains the set of active Clients and broadcasts messages to the
+// Clients.
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
+	// Registered Clients.
+	Clients map[*Client]bool
 
-	// Inbound messages from the clients.
-	messages map[int]string
+	// Inbound messages from the Clients.
+	Messages map[int]string
 
-	// Register requests from the clients.
+	// Register requests from the Clients.
 	register chan *Client
 
-	Input chan string
-	// Unregister requests from clients.
+	Input chan MessageBlock
+	// Unregister requests from Clients.
 	unregister chan *Client
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		Input:      make(chan string),
+		Input:      make(chan MessageBlock),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-		messages:   make(map[int]string),
+		Clients:    make(map[*Client]bool),
+		Messages:   make(map[int]string),
 	}
 }
 
@@ -37,19 +37,19 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client] = true
+			h.Clients[client] = true
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.send)
+			if _, ok := h.Clients[client]; ok {
+				delete(h.Clients, client)
+				close(client.Send)
 			}
 			/*case message := <-h.broadcast:
-			for client := range h.clients {
+			for client := range h.Clients {
 				select {
-				case client.send <- message:
+				case client.Send <- message:
 				default:
-					close(client.send)
-					delete(h.clients, client)
+					close(client.Send)
+					delete(h.Clients, client)
 				}
 			}*/
 		}
