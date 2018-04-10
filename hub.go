@@ -1,13 +1,8 @@
-// Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package sock
 
 import ()
 
-// hub maintains the set of active Clients and broadcasts messages to the
-// Clients.
+//Connection router that registers connections and handles read/write to them
 type Hub struct {
 	// Registered Clients.
 	Clients map[*Client]bool
@@ -17,12 +12,14 @@ type Hub struct {
 
 	// Register requests from the Clients.
 	register chan *Client
-
+	// Last Message to Hub
 	Input chan MessageBlock
 	// Unregister requests from Clients.
 	unregister chan *Client
 }
 
+// Initializes Hub Struct.
+// Returns *Hub
 func NewHub() *Hub {
 	return &Hub{
 		Input:      make(chan MessageBlock),
@@ -33,6 +30,7 @@ func NewHub() *Hub {
 	}
 }
 
+//Initializes hub cycle
 func (h *Hub) Run() {
 	for {
 		select {

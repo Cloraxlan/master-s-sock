@@ -1,3 +1,0 @@
-package sock
-
-//import "fmt"

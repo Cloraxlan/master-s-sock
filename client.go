@@ -1,13 +1,9 @@
-// Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
+//Simple Websock Library for Go
 package sock
 
 import (
 	"bytes"
 
-	//	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -38,19 +34,25 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// MessageBlock is a struct containing a message and a *Client of the client that sent the message
 type MessageBlock struct {
-	Client  *Client
+	//Client that sent Message
+	Client *Client
+	//The message sent to the server
 	Message string
 }
 
-// Client is a middleman between the websocket Connection and the hub.
+// Client is a connection between the server and client
 type Client struct {
+	//Hub where Client is located
 	hub *Hub
-	Id  int
+	//Use to distinguish connections.
+	//Default is 1
+	Id int
 	// The websocket Connection.
 	Conn *websocket.Conn
 
-	// Buffered channel of outbound messages.
+	// Channel to send to client
 	Send chan []byte
 }
 
@@ -133,7 +135,7 @@ func (c *Client) writePump() {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
+// ServeWs initializes connection between hub and client
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	Conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
